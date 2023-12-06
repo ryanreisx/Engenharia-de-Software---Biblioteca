@@ -1,0 +1,39 @@
+import java.util.HashMap;
+import java.util.Map;
+
+public class Entrada {
+    private static Map<String, IComando> comandos = new HashMap<String, IComando>();
+
+    static {
+        comandos.put("emp", new cmdEmprestar());
+        comandos.put("res", new cmdReservar());
+        comandos.put("dev", new cmdDevolver());
+        comandos.put("obs", new cmdObservar());
+        comandos.put("liv", new cmdConsultaLivro());
+        comandos.put("usu", new cmdConsultaUsuario());
+        comandos.put("ntf", new cmdConsultaNotificacao());
+        comandos.put("sai", new cmdSair());
+    }
+
+    public static void executarComandos(String cmd) {
+        CarregadorArgs parametros = null; // Initialize with a default value or null
+        
+        String[] args = cmd.split(" ");
+        System.out.println(cmd);
+        System.out.println(args);
+        String command = args[0];
+
+        if (args.length == 1) {
+            parametros = new CarregadorArgs();
+        } else if (args.length == 2) {
+            int arg1 = Integer.parseInt(args[1]);
+            parametros = new CarregadorArgs(arg1);
+        } else if (args.length == 3) {
+            int arg1 = Integer.parseInt(args[1]);
+            int arg2 = Integer.parseInt(args[2]);
+            parametros = new CarregadorArgs(arg1, arg2);
+        }
+        comandos.get(command).executar(parametros);
+        
+    }
+}
