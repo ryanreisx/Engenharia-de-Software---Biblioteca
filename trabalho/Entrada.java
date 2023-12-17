@@ -16,7 +16,7 @@ public class Entrada {
     }
 
     public static void executarComandos(String cmd) {
-        CarregadorArgs parametros = null; // Initialize with a default value or null
+        CarregadorArgs parametros = null; 
         
         String[] args = cmd.split(" ");
         System.out.println(cmd);

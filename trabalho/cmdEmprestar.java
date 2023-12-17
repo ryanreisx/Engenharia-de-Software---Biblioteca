@@ -3,8 +3,11 @@ public class cmdEmprestar implements IComando{
 
     public void executar (CarregadorArgs args)
     {
-        System.out.println("Comando emprestimo");
-        return;
+        int idUsuario = args.getArg1();
+        int idLivro = args.getArg2();
+        Biblioteca biblioteca = Biblioteca.obterInstancia();
+
+        biblioteca.cmdEmprestar(idUsuario, idLivro);
     }
 	
 	
