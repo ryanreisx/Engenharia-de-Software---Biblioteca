@@ -7,7 +7,7 @@ public class cmdEmprestar implements IComando{
         int idLivro = args.getArg2();
         Biblioteca biblioteca = Biblioteca.obterInstancia();
 
-        biblioteca.cmdEmprestar(idUsuario, idLivro);
+         biblioteca.cmdEmprestar(idUsuario, idLivro);
     }
 	
 	

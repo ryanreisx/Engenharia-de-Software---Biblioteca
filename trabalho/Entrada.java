@@ -19,8 +19,6 @@ public class Entrada {
         CarregadorArgs parametros = null; 
         
         String[] args = cmd.split(" ");
-        System.out.println(cmd);
-        System.out.println(args);
         String command = args[0];
 
         if (args.length == 1) {

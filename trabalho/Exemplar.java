@@ -1,9 +1,8 @@
-
 public class Exemplar{
 
     public int idExemplar;
     public Livro livro;
-    boolean statusEmprestimo;
+    public boolean statusEmprestimo;
    
     //Constructor
     public Exemplar(int idExemplar, Livro livro) {
@@ -31,4 +30,10 @@ public class Exemplar{
 	public void setStatusEmprestimo(boolean statusEmprestimo) {
 		this.statusEmprestimo = statusEmprestimo;
 	}
+	
+	public void disponibilizarExemplar() {
+		this.statusEmprestimo = true;
+	}
+		
+
 }

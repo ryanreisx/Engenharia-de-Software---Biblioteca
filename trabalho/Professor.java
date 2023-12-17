@@ -15,8 +15,6 @@ public class Professor extends Usuario implements Observer{
     }
 
 
-
-
     @Override
     public void update(Livro livro) {
         notificacao++;

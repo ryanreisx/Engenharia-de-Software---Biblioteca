@@ -1,16 +1,13 @@
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class Biblioteca {
 
-    private List<Usuario> usuarios;
-    private List<Livro> livros; 
-    private static Biblioteca instancia;
+    private List<Usuario> usuarios = new ArrayList<Usuario>();
+    private List<Livro> livros = new ArrayList<Livro>();
 
-    private Biblioteca() {
-        this.usuarios = new ArrayList<>();
-        this.livros = new ArrayList<>();
-    }
+    private static Biblioteca instancia;
 
     public static Biblioteca obterInstancia() {
         if (instancia == null) {
@@ -19,48 +16,156 @@ public class Biblioteca {
         return instancia;
     }
 
-    public boolean cmdReservar(int idCliente, int idLivro) {
-        // Lógica para reservar o livro
-        // Retorna true se a reserva for bem-sucedida, false caso contrário
-        return false; // Exemplo de retorno, substitua com a lógica real
+    public Usuario encontrarUsuarioByID (int idUsuario) {
+    	for (Usuario usuario : usuarios) {    		
+            if (usuario.getIdUsuario() == idUsuario){
+            	return usuario;
+            }
+		}
+    	return null;
     }
-
-    public boolean cmdEmprestar(int idCliente, int idLivro) {
-        // Lógica para emprestar o livro
-        // Retorna true se o empréstimo for bem-sucedido, false caso contrário
-        return false; // Exemplo de retorno, substitua com a lógica real
-    }
-
-    public boolean cmdDevolver(int idCliente, int idLivro) {
-        // Lógica para devolver o livro
-        // Retorna true se a devolução for bem-sucedida, false caso contrário
-        return false; // Exemplo de retorno, substitua com a lógica real
-    }
-
-    public Livro cmdConsultarLivro(int idCliente, int idLivro) {
-        // Lógica para consultar informações do livro
-        // Retorna o livro consultado ou null se não encontrado
-        return null; // Exemplo de retorno, substitua com a lógica real
+  
+    public Livro encontrarLivroByID (int idLivro) {
+    	for (Livro livro : livros) {    		
+            if (livro.getIdLivro() == idLivro) {
+            	return livro;
+            }
+		}
+    	return null;
     }
     
-    public Usuario cmdConsultarUsuario(int idCliente) {
-        // Lógica para consultar informações do usuário
-        // Retorna o usuário consultado ou null se não encontrado
-        return null; // Exemplo de retorno, substitua com a lógica real
+
+    public void cmdReservar(int idCliente, int idLivro) {
+        Biblioteca b = Biblioteca.obterInstancia();
+		Usuario usu = b.getUsuario(idCliente);
+		Livro livro = b.getLivro(idLivro);
+		
+		if(usu.getQtdReserva()< 3)
+		{
+			boolean achouReserva = false;
+			for(Reserva r : usu.reservas)
+			{
+				if(r.getIdLivro() == idLivro)
+				{
+					achouReserva = true;
+					break;
+				}
+			}
+			if(!achouReserva)
+			{	
+				Reserva r = new Reserva(usu, livro);
+				livro.addReserva(r);
+				usu.addReserva(r);
+                GerenciadorMensagens.resRealizada(usu, livro);
+			}
+			else
+			{
+				GerenciadorMensagens.resDuplicada(livro, usu);
+			}
+		}
+		else
+			GerenciadorMensagens.resNumMaximo();
     }
 
-    public void cmdConsultarNotificacao(int idCliente, int idLivro) {
-        // Lógica para observar ou realizar alguma ação
-        // Este método pode não retornar nada, pois é um void
+    private Usuario getUsuario(int idUsuario)
+    {
+        for (Usuario u : usuarios) {
+			if (u.getIdUsuario() == idUsuario) {
+				return u;
+			}
+		}    
+        return null;
+    }
+
+
+    public void cmdDevolver(int idCliente, int idLivro) {
+        Biblioteca biblioteca = obterInstancia();
+        Usuario usuario = biblioteca.encontrarUsuarioByID(idCliente);
+        Livro livro = biblioteca.encontrarLivroByID(idLivro);
+        boolean temLivro = usuario.livroEstaComUsuario(idLivro);
+        if (temLivro)
+        {
+            Exemplar e = usuario.getExemplarParaDevolver(idLivro);
+            GerenciadorMensagens.devRealizada(livro, usuario);
+			e.disponibilizarExemplar();
+            usuario.devolveReservaExemplar(idLivro);
+            usuario.addNumEmprestimos();
+            livro.removerEmprestimoPorExemplar(e.getIdExemplar());
+            e.setStatusEmprestimo(false);
+
+			
+		} else
+        GerenciadorMensagens.devNaoRealizada(livro, usuario);
+        }
+
+
+        
+
+    public void cmdEmprestar(int idCliente, int idLivro) {
+        Biblioteca biblioteca = obterInstancia();
+        Usuario usuario = biblioteca.encontrarUsuarioByID(idCliente);
+        Livro livro = biblioteca.encontrarLivroByID(idLivro);
+        if (livro == null)
+        {
+            GerenciadorMensagens.empSemExemplar();
+        }
+        usuario.fazerEmprestimo(usuario, livro);
+    }
+
+
+
+    public void cmdConsultarLivro(int idLivro) {
+        Biblioteca biblioteca = obterInstancia();
+        Livro livro = biblioteca.encontrarLivroByID(idLivro);
+        GerenciadorMensagens.livConsulta(livro);
+    }
+
+    
+    public void cmdConsultarUsuario(int idCliente) {
+        Biblioteca biblioteca = Biblioteca.obterInstancia();
+        Usuario usuario = biblioteca.encontrarUsuarioByID(idCliente);
+        GerenciadorMensagens.usuConsulta(usuario);
+    }
+
+    public void cmdConsultarNotificacao(int idCliente) {
+        Biblioteca biblioteca = Biblioteca.obterInstancia();
+        Usuario usuario = biblioteca.encontrarUsuarioByID(idCliente);
+
+        GerenciadorMensagens.ntfConsulta(usuario);
     }
 
     public void cmdObservar(int idCliente, int idLivro) {
-        // Lógica para observar ou realizar alguma ação
-        // Este método pode não retornar nada, pois é um void
+        Biblioteca biblioteca = Biblioteca.obterInstancia();
+        Usuario usuario = biblioteca.getUsuario(idCliente);
+        Livro livro = biblioteca.getLivro(idLivro);
+
+        livro.registrarObservador((Observer) usuario);
+        GerenciadorMensagens.obsAdicionado(livro, usuario);
     }
 
     public void cmdSair() {
-        System.out.println("Programa finalizado!");
+        GerenciadorMensagens.sair();
         System.exit(0);
+    }
+
+    public Livro getLivro(int idLivro)
+    {
+        for (Livro l : livros) {
+			if (l.getIdLivro() == idLivro) {
+				if (l.verificarDisponibilidade())
+					return l;
+			}
+		}
+		return null;
+    }
+
+    public void addLivro(Livro livro)
+    {
+        livros.add(livro);
+    }
+
+    public void addUsuario(Usuario usuario)
+    {
+        usuarios.add(usuario);
     }
 }
